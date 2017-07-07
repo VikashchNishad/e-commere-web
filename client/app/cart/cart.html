@@ -1,0 +1,139 @@
+<style>
+/*td{padding: 0 5px;}*/
+</style>
+
+<button type="button" class="close" ng-click="cancel();">
+    <i class="fa fa-times-circle-o" style="margin:10px;color:blue;"></i>
+</button>
+
+<div class="modal-header">
+    <h3 class="modal-title">Cart Details</h3> Total Amount: {{cart.getTotalPrice() | currency}} - ({{cart.getTotalCount()}} items)
+</div>
+
+<div class="modal-body">
+    <div class="actions-continue">
+        <button class="btn btn-default pull-left" ng-click="cart.clearItems();" ng-disabled="cart.getTotalCount() <= 0">Clear Cart</button>
+
+        <input type="text" placeholder="Filter Cart" class="form-control col-md-4" style="width:250px;margin-left:20px;" ng-model="filterCart" autofocus/>
+
+        <button value="Proceed to Checkout →" name="proceed" class="btn btn-primary pull-right" onclick="window.location.href='/checkout'" ng-disabled="cart.getTotalCount() <= 0" ng-click="cancel();">Proceed to Checkout →</button>
+
+        <div class="clearfix"></div>
+    </div><br/>
+
+    <table class="cart table table-striped" ng-repeat="item in cart.items | filter: filterCart">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th></th>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th ng-if="(item.discount.buy.number != null) && (item.discount.buy.getfree != null)">Total Quantity</th>
+                <th>Total Amount</th>
+                <th ng-if="(item.discount.buy.number != null) && (item.discount.buy.getfree != null)">Final Amount</th>
+                <th>Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- empty cart message -->
+            <tr ng-hide="cart.getTotalCount() > 0" >
+                <td class="tdCenter" colspan="7">
+                    Your cart is empty. &nbsp;&nbsp;<a class="btn btn-primary" href="/" ng-click="cancel();">Shop Now</a>
+                </td>
+            </tr>
+
+            <tr>
+                <td>{{message}}</td>
+
+                <td class="product-thumbnail">
+                    <a>
+                        <img ng-src="/assets/clothing/{{item.image}}" alt="{{item.name}}" data-err-src="images/product.jpg" width="54px"/>
+                    </a>
+                </td>
+              <!-- Product -->
+                <td class="product-name">
+                    <a ui-sref="productDetail({id:item.sku, slug:item.slug})" ng-click="cancel();">{{item.name}}</a> 
+                </td>
+              <!-- Price -->
+                <td ng-if="(item.discount.buy.number != null) && (item.discount.buy.getfree != null)">
+                    <div style="width: 120px; height: 33px; background-color: lightgrey; border: 1px solid lightgrey; border-radius: 3px; text-align: center; font-size: 18px;">{{item.price | currency}}
+                    </div>
+                </td>
+                <td ng-if="(item.discount.percentOff != null)">
+                    <div style="width: 140px; height: 70px; background-color: lightgrey; border: 1px solid lightgrey; border-radius: 3px; text-align: center; font-size: 18px;">{{item.price | currency}}<br><span style="font-size: 15px;">{{item.discount.percentOff}}% Off <del>{{item.mrp | currency}}</del></span>
+                    </div>
+                </td>
+                <td ng-if="(item.discount.rsOff != null)">
+                    <div style="width: 150px; height: 70px; background-color: lightgrey; border: 1px solid lightgrey; border-radius: 3px; text-align: center; font-size: 18px;">{{item.price | currency}}<br><span style="font-size: 15px;">{{item.discount.rsOff}} Rs.Off <del>{{item.mrp | currency}}</del></span>
+                    </div>
+                </td>
+              <!-- Quantity -->
+                <td>
+                    <div class="input-group" style="width:105px;">
+                      <div class="input-group-addon btn" ng-disabled="item.quantity <= 1" ng-click="cart.addItem(item.sku, item.name, item.discount, item.slug, item.mrp, item.price, -1); pluse()">-</div>
+                      <input class="form-control" type="text" min="1" step="1" ng-model="item.quantity" ng-change="cart.saveItems()">
+                      <div class="input-group-addon btn" ng-disabled="item.quantity >= 1000" ng-click="cart.addItem(item.sku, item.name, item.discount, item.slug, item.mrp, item.price, +1); pluse()">+</div>
+                    </div>
+                </td>
+                <!-- Total Quantity -->
+                <td ng-if="(item.discount.buy.number != null) && (item.discount.buy.getfree != null)" >    
+                  <div  style="width: 60px; height: 33px; background-color: lightgrey; border: 1px solid lightgrey; border-radius: 3px; text-align: center; font-size: 18px;" >
+                      <div class="w3-panel w3-border" ng-disabled="item.quantity >= 1000">{{(item.quantity + item.freeCount)}}</div>
+                  </div>
+                </td>
+                <!-- Total Amount -->
+                <td ng-if="(item.discount.buy.number != null) && (item.discount.buy.getfree != null)">
+                    <div style="width: 120px; height: 33px; background-color: lightgrey; border: 1px solid lightgrey; border-radius: 3px; text-align: center; font-size: 18px;">{{(item.quantity + item.freeCount)*item.price  | currency}}
+                    </div>
+                </td>
+                <td ng-if="(item.discount.percentOff != null)||(item.discount.rsOff != null)">
+                    <div style="width: 120px; height: 33px; background-color: lightgrey; border: 1px solid lightgrey; border-radius: 3px; text-align: center; font-size: 18px;">{{ item.price*item.quantity | currency}}
+                    </div>
+                </td>
+              <!-- Final Amount -->
+                <td ng-if="(item.discount.buy.number != null) && (item.discount.buy.getfree != null)" >
+                    <div style="width: 120px; height: 33px; background-color: lightgrey; border: 1px solid lightgrey; border-radius: 3px; text-align: center; font-size: 18px;">{{item.price * item.quantity | currency}}
+                    </div>
+                </td>
+                <!-- Remove -->
+                <td class="product-actions">
+                    <a title="Remove this item" class="remove" href="" ng-click="cart.addItem(item.sku, item.name, item.discount, item.slug, item.mrp, item.price, -10000000)">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </td>
+            </tr>
+            <tr ng-if="(item.discount.buy.number != null) && (item.discount.buy.getfree != null)" class="product-thumbnail">
+                <td></td>
+
+                <td >
+                    <a>
+                    <img ng-src="/assets/clothing/{{item.image}}" alt="{{item.name}}" data-err-src="images/product.jpg" width="40px"/>
+                    </a>
+                </td>
+
+                <td class="product-name">
+                    <a ui-sref="productDetail({id:item.sku, slug:item.slug})" ng-click="cancel();">{{item.name}}</a> 
+                </td>
+
+                <td>
+                    <div style="width: 120px; height: 33px; background-color: lightgrey; border: 1px solid lightgrey; border-radius: 3px; text-align: center; font-size: 18px;">{{item.price | currency}}</div>
+                </td>
+              
+                <td ng-if="(item.discount.buy.number != null) && (item.discount.buy.getfree != null)" >
+                        <div style="font-size: 18px;">&nbsp;&nbsp;&plus;&nbsp;{{ item.freeCount }}&nbsp;free<br></div>
+                        <!-- <div style="font-size: 18px;" ng-if="(item.discount.buy.getfree) > (item.discount.buy.number)">&nbsp;&nbsp;&plus;&nbsp;{{freequantity1}}&nbsp;free<br></div> -->
+
+                        </td>
+                <td></td>
+
+                <td><div style="width: 120px; height: 33px; background-color: lightgrey; border: 1px solid lightgrey; border-radius: 3px; text-align: center; font-size: 18px;" ng-if="(item.discount.buy.number != null) && (item.discount.buy.getfree != null)">&minus;&nbsp;{{ item.freeCount*item.price | currency}}</div>
+                </td>
+
+            </tr>
+
+
+
+        </tbody>
+    </table>
+</div>
