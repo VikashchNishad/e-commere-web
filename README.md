@@ -1,13 +1,5 @@
-# ShopNX - Shopping Cart with AngularJS (eCommerce web application)
-A single page Shopping Cart web applications with many necessary features of an ecommerce application.
 
-### Please have a look at a more matured/bugfree version of ShopNx release <a href="http://preview.codecanyon.net/item/material-shop-material-designed-shopping-cart-using-angularjs/full_screen_preview/17904231">Material Shop</a> 
 
-# Installation Instructions
-## Requirements
-
-We need Node https://nodejs.org/en/ (To create web server) + Git https://git-scm.com/ (Version Control System) + MongoDB https://www.mongodb.com/ (Database) + Python 2.7 https://www.python.org/downloads/release/python-2710/ 
-Go ahead download and install them
 
 Install Visual C++ Build Tools using the Default Install option. 
 Run the following commands (Required Once) [Note: Second command is required only for Windows]
